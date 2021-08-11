@@ -7,29 +7,29 @@ if [ -d /sys/firmware/efi ];
 		sys=BIOS
 fi
 #-------------- Prompts
-printf "Which Partition/Drive Will The System Be Installed To?: [/dev/sdxx]" && read root
-[ sys == UEFI ] && printf "Which Partition Shall Be Used For The Bootloader?: [/dev/sdxx]" && read boot
-printf "What Is Your Timezone?: [Country/City]" && read zone
-printf "What Is Your Locale: [xx_XX]" && read locale
-printf "Do You Want a Home Partition?: [y/n]" && [ $ans == y ] && printf "Which Partition" && read home || home=""
-printf "What Is This System's Hostname?" && read host
-printf "What Is This System's Root Password?" && read rt_passwd
-printf "What Is Your Username For This New System?" && read username
-printf "What Is Thew New User's Password?" && read passwd
+printf "Which Partition/Drive Will The System Be Installed To?: [/dev/sdxx] " && read root
+[[ $sys == UEFI ]] && printf "Which Partition Shall Be Used For The Bootloader?: [/dev/sdxx] " && read boot
+printf "What Is Your Timezone?: [Country/City] " && read zone
+printf "What Is Your Locale: [xx_XX] " && read locale
+printf "Do You Want a Home Partition?: [y/n] " && read ans && [[ $ans == y ]] && printf '%s\n' "Which Partition" && read home || home=""
+printf "What Is This System's Hostname? " && read host
+printf "What Is This System's Root Password? " && read rt_passwd
+printf "What Is Your Username For This New System? " && read username
+printf "What Is Thew New User's Password? " && read passwd
 #-------------- Mounting System
 case $sys in
 	UEFI)
 		mount $root /mnt
 		if [ -z "$home" ];
 			then
-				mkdir /mnt/boot
+				mkdir -p /mnt/boot
 				mount $boot /mnt/boot
 				mkdir -p /mnt/home/$username
 			else 
-				mkdir /mnt/boot
-				mkdir /mnt/home
-				mount $boot
-				mount $home
+				mkdir -p /mnt/boot
+				mkdir -p /mnt/home
+				mount $boot /mnt/boot
+				mount $home /mnt/home
 				mkdir -p /mnt/home/$username
 		fi
 	;;
@@ -44,7 +44,7 @@ case $sys in
 	;;
 esac
 #-------------- Installing Core Packages
-[$sys == UEFI] && pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub efibootmgr || pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub
+[ $sys == UEFI ] && pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub efibootmgr || pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub
 #-------------- Configuring System
 genfstab -LU /mnt >> /mnt/etc/fstab &&
 arch-chroot /mnt &&

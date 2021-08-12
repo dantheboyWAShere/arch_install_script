@@ -20,7 +20,7 @@ printf "What Is Thew New User's Password? " && read passwd
 case $sys in
 	UEFI)
 		mount $root /mnt
-		if [ -z "$home" ];
+		if [ -z "$home" ]
 			then
 				mkdir -p /mnt/boot
 				mount $boot /mnt/boot
@@ -35,8 +35,9 @@ case $sys in
 	;;
 	BIOS)
 		mount $root /mnt
-		if [ -z "$home" ];
-			return 0
+		if [ -z "$home" ]
+			then
+				return 0
 			else
 				mount $home
 				mkdir -p /mnt/home/$username
@@ -44,7 +45,7 @@ case $sys in
 	;;
 esac
 #-------------- Installing Core Packages
-[ $sys == UEFI ] && pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub efibootmgr || pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub
+[[ $sys == UEFI ]] && pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub efibootmgr || pacstrap /mnt base base-devel linux linux-firmware neovim networkmanager grub
 #-------------- Configuring System
 genfstab -LU /mnt >> /mnt/etc/fstab &&
 arch-chroot /mnt &&
@@ -57,7 +58,7 @@ echo "$host" >> /etc/hostname
 echo "1270.0.0.1	localhost\n::1		localhost\n127.0.1.1		$host.localdomain $host"
 systemctl enable NetworkManager.service && systemctl start NetworkManager.service
 #-------------- Setting Up Bootloader (Grub)
-[$sys == UEFI] && grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB || grub-install --target=i386-pc $(echo $boot | sed -e 's/[0-9]//g') 
+[ $sys == UEFI ] && grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB || grub-install --target=i386-pc $(echo $boot | sed -e 's/[0-9]//g') 
 grub-mkconfig -o /boot/grub/grub.cfg
 #-------------- Setting Up Users and Root
 useradd $username
